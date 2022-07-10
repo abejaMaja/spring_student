@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.sda.arppl4.school.model.dto.SubjectDTO;
+import pl.sda.arppl4.school.model.dto.SubjectRequest;
 import pl.sda.arppl4.school.service.SubjectService;
 
 
@@ -19,8 +20,6 @@ import java.util.List;
 public class SubjectController {
     private final SubjectService subjectService;
 
-
-
     @GetMapping()
     public ResponseEntity<List<SubjectDTO>> list() {
         log.info("Received request: list");
@@ -29,11 +28,11 @@ public class SubjectController {
                 .body(subjectService.findAllSubject());
     }
 
-    @PostMapping(value="/rest/account/json", consumes={"application/json"})
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@RequestBody Subject subject) {
-        log.info("Received request: create -> " + subject);
-        subjectService.addSubject(subject);
+    public void create(@RequestBody SubjectRequest request) {
+        log.info("Received request: create -> " + request);
+        subjectService.addSubject(request);
     }
 
     @DeleteMapping("/{id}")
@@ -42,11 +41,6 @@ public class SubjectController {
         subjectService.deleteSubject(subjectId);
     }
 
-    @PatchMapping("/{id}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void update(@PathVariable(name = "id") Long subjectId, @RequestBody Subject subject) {
-        log.info("Received request: update -> " + subject);
-        subjectService.updateSubject(subjectId, subject);
-    }
+
 
 }

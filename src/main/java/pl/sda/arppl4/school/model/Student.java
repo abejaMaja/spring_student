@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import pl.sda.arppl4.school.model.dto.StudentDTO;
+import pl.sda.arppl4.school.model.dto.StudentRequest;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -68,6 +69,13 @@ public class Student {
 
     public void setIndexNumber(String indexNumber) {
         this.indexNumber = indexNumber;
+    }
+
+    public Student(StudentRequest request) {
+        this.nameStudent = request.getNameStudent();
+        this.surName = request.getSurName();
+        this.birthDay = request.getBirthDay();
+        this.indexNumber = request.getIndexNumber();
     }
 
     public StudentDTO mapToStudentDTO() {

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.sda.arppl4.school.model.Student;
 import pl.sda.arppl4.school.model.dto.StudentDTO;
+import pl.sda.arppl4.school.model.dto.StudentRequest;
 import pl.sda.arppl4.school.service.StudentService;
 
 import java.util.List;
@@ -31,10 +32,18 @@ public class StudentController {
     @PostMapping(value="/rest/account/json", consumes={"application/json"})
     @ResponseStatus(HttpStatus.CREATED)
 
-    public void create(@RequestBody Student student) {
-        log.info("Received request: create -> " + student);
-        studentService.addStudent(student);
+    public void create(@RequestBody StudentRequest request) {
+        log.info("Received request: create -> " + request);
+        studentService.addStudent(request);
     }
+
+    @PostMapping("/addListofStudents")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addStudents(@RequestBody List<Student> list){
+        log.info("Wywołano metodę addStudents");
+        studentService.addStudentList(list);
+    }
+
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable(name = "id") Long studentId) {
@@ -44,8 +53,8 @@ public class StudentController {
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void update(@PathVariable(name = "id") Long studentId, @RequestBody Student student) {
-        log.info("Received request: update -> " + student);
-        studentService.update(studentId, student);
+    public void update(@PathVariable(name = "id") Long studentId, @RequestBody StudentRequest request) {
+        log.info("Received request: update -> " + request);
+        studentService.update(studentId, request);
     }
 }

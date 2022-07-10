@@ -6,15 +6,17 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import pl.sda.arppl4.school.model.dto.StudentDTO;
 import pl.sda.arppl4.school.model.dto.SubjectDTO;
+import pl.sda.arppl4.school.model.dto.SubjectRequest;
 
 
 import javax.persistence.*;
 import java.util.Set;
 
  // Getter Setter ToString EqualsAndHashCode
+@Data
 @Entity
-
 @NoArgsConstructor
+@AllArgsConstructor
 
 public class Subject {
     @Id
@@ -25,26 +27,13 @@ public class Subject {
 
     @OneToMany(mappedBy = "student", fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
-
     private Set<Grade> grades;
 
-    public Long getId() {
-        return id;
-    }
+     public Subject(String nameSubject) {
+         this.nameSubject = nameSubject;
+     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNameSubject() {
-        return nameSubject;
-    }
-
-    public void setNameSubject(String nameSubject) {
-        this.nameSubject = nameSubject;
-    }
-
-    public SubjectDTO mapToSubjectDTO() {
+     public SubjectDTO mapToSubjectDTO() {
         return new SubjectDTO(
                 id,
                 nameSubject

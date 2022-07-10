@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.sda.arppl4.school.model.Grade;
 import pl.sda.arppl4.school.model.Student;
+import pl.sda.arppl4.school.model.dto.GradeDTO;
 import pl.sda.arppl4.school.model.dto.GradeRequest;
 import pl.sda.arppl4.school.model.dto.StudentDTO;
 import pl.sda.arppl4.school.repository.GradeRepository;
@@ -27,12 +28,17 @@ public class GradeService {
     private final SubjectRepository subjectRepository;
 
 
-    public List<Grade> getAllgrades(Long studenentId) {
+    public List<GradeDTO> getAllgrades(Long studenentId) {
+
         Optional<Student> optionalStudent = studentRepository.findById(studenentId);
         if (optionalStudent.isPresent()) {
             Student student = optionalStudent.get();
             List<Grade> grades = new ArrayList<>(student.getGrades());
-            return grades;
+            List<GradeDTO> gradDTO = new ArrayList<>();
+            for(Grade grade: grades){
+                gradDTO.add(grade.mapToGradeDTO());
+            }
+            return gradDTO;
 
         }
         throw new EntityNotFoundException("Unable to find student with id: " + studenentId);
@@ -41,32 +47,30 @@ public class GradeService {
 
     public void addGrade(Long subjectId, Long studentId, GradeRequest request) {
         Optional<Student> studentOptional = studentRepository.findById(studentId);
+
         Optional<Subject> subjectOptional = subjectRepository.findById(subjectId);
 
-        if (studentOptional.isPresent()) {
+        if (studentOptional.isPresent() && subjectOptional.isPresent()) {
 
-            if (subjectOptional.isPresent()) {
-                Student student = studentOptional.get();
-                Subject subject = subjectOptional.get();
-                Grade grade = mapGradeRequestToGrade(request);
-                grade.setStudent(student);
-                grade.setValue(grade.getValue());
-                grade.setSubject(subject);
+            Student student = studentOptional.get();
+            log.info("Studnet o id " + student.getNameStudent() );
+            Subject subject = subjectOptional.get();
+            log.info("Studnet o id " + subject.getNameSubject() );
+            Grade gradeNew =new Grade();
+            gradeNew.setStudent(student);
+            gradeNew.setValue(request.getValue());
+            gradeNew.setSubject(subject);
 
-                gradeRepository.save(grade);
-            }
-            throw new EntityNotFoundException("Unable to find subject with id: " + subjectId);
+            gradeRepository.save(gradeNew);
+
+
+        }else {
+            throw new EntityNotFoundException("Unable to find student and subject with id: " + studentId + " , " + subjectId);
         }
-        throw new EntityNotFoundException("Unable to find car with id: " + studentId);
-    }
-
-    private Grade mapGradeRequestToGrade(GradeRequest request) {
-        return new Grade(request.getValue());
 
     }
 
-
-    public List<Grade> getGradesPerSubject(Long studentId, Long subjectId) {
+    public List<GradeDTO> getGradesPerSubject(Long subjectId, Long studentId) {
         Optional<Student> studentOptional = studentRepository.findById(studentId);
         Optional<Subject> subjectOptional = subjectRepository.findById(subjectId);
 
@@ -75,11 +79,27 @@ public class GradeService {
             if (subjectOptional.isPresent()) {
                 Subject subject = subjectOptional.get();
                 List<Grade> grades = new ArrayList<>(student.getGrades());
-                return grades;
+                List<GradeDTO> gradDTO = new ArrayList<>();
+                for(Grade grade: grades){
+                    gradDTO.add(grade.mapToGradeDTO());
+                }
+                return gradDTO;
 
             }
             throw new EntityNotFoundException("Unable to find subject with id: " + subjectId);
         }
-        throw new EntityNotFoundException("Unable to find car with id: " + studentId);
+        throw new EntityNotFoundException("Unable to find student with id: " + studentId);
+    }
+
+    public void update(Long gradeId, GradeRequest request) {
+        Optional<Grade> gradeOptional = gradeRepository.findById(gradeId);
+        if(gradeOptional.isPresent()){
+            Grade grade = gradeOptional.get();
+            if(request.getValue()!=null){
+                grade.setValue(request.getValue());
+            }
+
+        }
+
     }
 }

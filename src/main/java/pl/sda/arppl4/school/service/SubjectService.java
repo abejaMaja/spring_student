@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.sda.arppl4.school.exception.CustomException;
+import pl.sda.arppl4.school.model.Student;
 import pl.sda.arppl4.school.model.dto.SubjectDTO;
+import pl.sda.arppl4.school.model.dto.SubjectRequest;
 import pl.sda.arppl4.school.repository.SubjectRepository;
 
 
 import javax.persistence.EntityNotFoundException;
+
 import pl.sda.arppl4.school.model.Subject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,26 +25,10 @@ public class SubjectService {
     private final SubjectRepository subjectRepository;
 
 
-
     public void deleteSubject(Long subjectId) {
         subjectRepository.deleteById(subjectId);
     }
 
-    public void updateSubject(Long subjectId, Subject editSubjectInformation) {
-        Optional<Subject> subjectOptional = subjectRepository.findById(subjectId);
-        if (subjectOptional.isPresent()) {
-            Subject subject = subjectOptional.get();
-
-            if(editSubjectInformation.getNameSubject()!=null){
-                subject.setNameSubject(editSubjectInformation.getNameSubject());
-            }
-
-
-            subjectRepository.save(subject);
-            return;
-        }
-        throw new EntityNotFoundException("Unable to find subject with id: " + subjectId);
-    }
 
     public List<SubjectDTO> findAllSubject() {
         List<Subject> subjectList = subjectRepository.findAll();
@@ -53,24 +41,26 @@ public class SubjectService {
         return subjects;
     }
 
-    public void addSubject(Subject subject) {
-
+    public void addSubject(SubjectRequest request) {
+        log.info("my subject 1  " + request.getNameSubject());
         List<Subject> subjectLista = subjectRepository.findAll();
+        log.info("my subject  " + request.getNameSubject());
+        log.info("my subject list is " + subjectLista);
 
-        if ( subjectLista != null) {
+        if (!subjectLista.isEmpty()) {
             for (Subject mySubject : subjectLista) {
                 String correctedName = mySubject.getNameSubject().replaceAll(" ", "");
-                if (!correctedName.equalsIgnoreCase(subject.toString())) {
-                    subjectRepository.save(subject);
-                    return;
+                String requestCorrectedName = request.getNameSubject().replaceAll(" ", "");
+                log.info("my request corrected subject name is " + requestCorrectedName);
+                if (correctedName.equalsIgnoreCase(requestCorrectedName)) {
+                    throw new CustomException("This subject already exist: " + request.getNameSubject());
+
                 }
-                throw new CustomException("This subject already exist: " + subject.getNameSubject());
-
             }
-        }else{
-            subjectRepository.save(subject);
-        }
 
+        }
+        Subject newSubject = new Subject(request.getNameSubject());
+        subjectRepository.save(newSubject);
 
 
     }
